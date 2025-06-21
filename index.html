@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lux AI Chatbox</title>
+  <style>
+    :root {
+      --primary-color: #5e3eff;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+    }
+
+    #chat-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    #chat-box {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 350px;
+      max-height: 70vh;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 999;
+    }
+
+    #chat-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px;
+      font-weight: bold;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #eee;
+    }
+
+    #chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      font-size: 14px;
+    }
+
+    #chat-input button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="chat-toggle">💬 Chat with us</button>
+
+  <div id="chat-box">
+    <div id="chat-header">Need help? I'm your Lux budtender 🌿</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="user-input" placeholder="Ask me anything..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const toggleBtn = document.getElementById('chat-toggle');
+    const chatBox = document.getElementById('chat-box');
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+
+    toggleBtn.addEventListener('click', () => {
+      chatBox.style.display = chatBox.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      appendMessage('You', text);
+      userInput.value = '';
+
+      try {
+        const res = await fetch('https://your-fastapi-domain.com/tenant/{tenant_id}/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: text })
+        });
+
+        const data = await res.json();
+        appendMessage('LuxBot', data.answer || data.follow_up || "Sorry, I’m not sure how to help with that.");
+      } catch (e) {
+        appendMessage('LuxBot', 'Oops, something went wrong.');
+      }
+    }
+  </script>
+</body>
+</html>
