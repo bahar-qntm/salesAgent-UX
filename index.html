@@ -115,7 +115,7 @@
       userInput.value = '';
 
       try {
-        const res = await fetch('https://your-fastapi-domain.com/tenant/{tenant_id}/chat', {
+        const res = await fetch('https://your-fastapi-domain.com/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: text })
