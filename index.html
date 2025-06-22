@@ -178,7 +178,7 @@
         if (data.sources && data.sources.length > 0) {
           const sourceList = data.sources.map(s => `<div class="footnote">Source: <a href='${s.url || 'https://luxpotshop.com'}' target='_blank'>${s.title}</a></div>`).join('');
           chatMessages.insertAdjacentHTML('beforeend', `<div class="message bot">${sourceList}</div>`);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+          // Don't auto-scroll for sources - let user control scrolling
         }
       } catch (error) {
         // Remove typing indicator on error
@@ -192,7 +192,11 @@
       msg.className = `message ${sender}`;
       msg.textContent = text;
       chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      // Only scroll to bottom for user messages, not bot responses
+      if (sender === 'user') {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
     }
 
     function showTypingIndicator() {
@@ -218,20 +222,32 @@
       msg.innerHTML = '';
       chatMessages.appendChild(msg);
 
+      // Scroll to show the start of the new message
+      msg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Convert HTML to plain text and split into words for word-by-word animation
       const temp = document.createElement('div');
       temp.innerHTML = html;
-      const elements = Array.from(temp.childNodes);
-
+      const plainText = temp.textContent || temp.innerText || '';
+      const words = plainText.split(' ');
+      
+      let currentText = '';
       let index = 0;
-      function next() {
-        if (index < elements.length) {
-          msg.appendChild(elements[index]);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      function addNextWord() {
+        if (index < words.length) {
+          currentText += (index > 0 ? ' ' : '') + words[index];
+          msg.textContent = currentText;
           index++;
-          setTimeout(next, 150);
+          // Very fast word-by-word animation - 15ms between words
+          setTimeout(addNextWord, 15);
+        } else {
+          // Once all words are displayed, replace with the full HTML for proper formatting
+          msg.innerHTML = html;
         }
       }
-      next();
+      
+      addNextWord();
     }
   </script>
 </body>
