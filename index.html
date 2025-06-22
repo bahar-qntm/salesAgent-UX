@@ -5,128 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lux AI Budtender</title>
   <style>
-    :root {
-      --primary-color: #5e3eff;
-      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
     body {
       margin: 0;
-      font-family: var(--font-family);
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
     }
-
-    #chat-toggle {
+    #chat-container {
       position: fixed;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      padding: 12px 20px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-    }
-
-    #chat-box {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      width: 550px;
-      max-height: 70vh;
-      background-color: white;
+      width: 350px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
       border-radius: 16px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
       overflow: hidden;
-      display: none;
-      flex-direction: column;
-      z-index: 999;
+      background-color: #fff;
+      z-index: 9999;
     }
-
     #chat-header {
-      background-color: var(--primary-color);
+      background-color: #1a1a1a;
       color: white;
       padding: 12px;
       font-weight: bold;
+      text-align: center;
     }
-
-    #chat-messages {
+    #chat-log {
       flex: 1;
-      padding: 12px;
+      padding: 16px;
       overflow-y: auto;
-      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-
+    .message {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .user {
+      align-self: flex-end;
+      background-color: #e0e0e0;
+    }
+    .bot {
+      align-self: flex-start;
+      background-color: #def3e8;
+    }
+    .sources {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
     #chat-input {
       display: flex;
-      border-top: 1px solid #eee;
+      border-top: 1px solid #ccc;
     }
-
-    #chat-input input {
+    #input {
       flex: 1;
       padding: 10px;
       border: none;
       font-size: 14px;
     }
-
-    #chat-input button {
-      background-color: var(--primary-color);
+    #send {
+      padding: 10px 16px;
+      background-color: #1a1a1a;
       color: white;
       border: none;
-      padding: 0 16px;
       cursor: pointer;
+    }
+    #typing {
+      font-size: 12px;
+      font-style: italic;
+      color: #888;
+      padding-left: 16px;
+      padding-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <button id="chat-toggle">💬 Chat with us</button>
-
-  <div id="chat-box">
-    <div id="chat-header">Need help? I'm your Lux budtender 🌿</div>
-    <div id="chat-messages"></div>
+  <div id="chat-container">
+    <div id="chat-header">Ask Lux</div>
+    <div id="chat-log"></div>
+    <div id="typing" style="display: none;">Lux is typing...</div>
     <div id="chat-input">
-      <input type="text" id="user-input" placeholder="Ask me anything..." />
-      <button onclick="sendMessage()">Send</button>
+      <input type="text" id="input" placeholder="Ask a question..." />
+      <button id="send">Send</button>
     </div>
   </div>
 
   <script>
-    const toggleBtn = document.getElementById('chat-toggle');
-    const chatBox = document.getElementById('chat-box');
-    const chatMessages = document.getElementById('chat-messages');
-    const userInput = document.getElementById('user-input');
+    const tenantId = '5388610a-535a-4d3f-92e5-9ae6527f9283';
+    const chatLog = document.getElementById('chat-log');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
+    const typing = document.getElementById('typing');
 
-    toggleBtn.addEventListener('click', () => {
-      chatBox.style.display = chatBox.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    function appendMessage(sender, text) {
-      const msg = document.createElement('div');
-      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+    function appendMessage(role, text, sources = []) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = text;
+      if (role === 'bot' && sources.length > 0) {
+        const sourceList = sources.map(s => ` <sup><a href='${s.url || '#'}' target='_blank'>[source]</a></sup>`).join('');
+        const footnote = document.createElement('div');
+        footnote.className = 'sources';
+        footnote.innerHTML = sourceList;
+        div.appendChild(footnote);
+      }
+      chatLog.appendChild(div);
+      chatLog.scrollTop = chatLog.scrollHeight;
     }
 
     async function sendMessage() {
-      const text = userInput.value.trim();
-      if (!text) return;
-      appendMessage('You', text);
-      userInput.value = '';
+      const question = input.value.trim();
+      if (!question) return;
+
+      appendMessage('user', question);
+      input.value = '';
+
+      typing.style.display = 'block';
 
       try {
-        const res = await fetch('https://budtender.cannafax.com/chat/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat', {
+        const res = await fetch(`https://budtender.cannafax.com/chat/tenant/${tenantId}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: text })
+          body: JSON.stringify({ question, top_k: 5 })
         });
 
         const data = await res.json();
-        appendMessage('LuxBot', data.answer || data.follow_up || "Sorry, I’m not sure how to help with that.");
-      } catch (e) {
-        appendMessage('LuxBot', 'Oops, something went wrong.');
+        const answer = data.answer || "I'm not sure about that one. Want to try asking in a different way?";
+
+        appendMessage('bot', answer, data.sources || []);
+      } catch (err) {
+        appendMessage('bot', "Oops! Something went wrong.");
+        console.error(err);
+      } finally {
+        typing.style.display = 'none';
       }
     }
+
+    send.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
   </script>
 </body>
 </html>
