@@ -47,7 +47,6 @@
       background-color: #111827;
       color: white;
       padding: 1rem;
-      font-weight: 400;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -66,7 +65,6 @@
     .user {
       display: flex;
       justify-content: flex-end;
-      margin-bottom: 1.5rem;
     }
     .user .message-content {
       background-color: #f1c709;
@@ -81,7 +79,6 @@
       text-align: left;
       color: #374151;
       font-weight: 400;
-      padding-right: 2rem;
     }
     #chat-form {
       display: flex;
@@ -124,12 +121,34 @@
       animation-delay: 0.4s;
     }
     @keyframes typing {
-      0%, 60%, 100% {
-        opacity: 0.3;
-      }
-      30% {
-        opacity: 1;
-      }
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
+
+    /* Product card styling */
+    .product-card {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      line-height: 1.4;
+    }
+
+    .product-card button {
+      margin-right: 0.5rem;
+      background-color: #28ba36;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .product-card button:hover {
+      background-color: #239d30;
     }
   </style>
 </head>
@@ -181,7 +200,6 @@
       chatMessages.appendChild(resetMsg);
     });
 
-
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const question = chatInput.value;
@@ -193,16 +211,13 @@
       try {
         const response = await fetch("https://budtender.cannafax.com/chat/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat", {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question, session_id: sessionId })
         });
 
         const data = await response.json();
         removeTypingIndicator(typingIndicator);
 
-        // ✅ Save new session_id if returned (fresh or reassigned)
         if (data.session_id && data.session_id !== sessionId) {
           sessionId = data.session_id;
           localStorage.setItem('chat_session_id', sessionId);
@@ -210,7 +225,6 @@
 
         const reply = data.answer || data.follow_up || "I'm not sure how to answer that, but let me help you find what you're looking for!";
         appendHTMLSequentially(reply, 'bot');
-
 
         if (data.sources && data.sources.length > 0) {
           const sourceList = data.sources.map(s => `<div class="footnote">Source: <a href='${s.url || '#'}' target='_blank'>${s.title}</a></div>`).join('');
@@ -236,8 +250,6 @@
       }
 
       chatMessages.appendChild(msg);
-      
-      // Only scroll to bottom for user messages, not bot responses
       if (sender === 'user') {
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
@@ -265,11 +277,8 @@
       msg.className = `message ${sender}`;
       msg.innerHTML = '';
       chatMessages.appendChild(msg);
-
-      // Scroll to show the start of the new message
       msg.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-      // Convert HTML to plain text and split into words for word-by-word animation
       const temp = document.createElement('div');
       temp.innerHTML = html;
       const plainText = temp.textContent || temp.innerText || '';
@@ -283,15 +292,36 @@
           currentText += (index > 0 ? ' ' : '') + words[index];
           msg.textContent = currentText;
           index++;
-          // Very fast word-by-word animation - 15ms between words
           setTimeout(addNextWord, 15);
         } else {
-          // Once all words are displayed, replace with the full HTML for proper formatting
           msg.innerHTML = html;
         }
       }
 
       addNextWord();
+    }
+
+    function addToCart(productId) {
+      fetch(`https://budtender.cannafax.com/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/cart/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, session_id: sessionId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const msg = document.createElement('div');
+        msg.className = 'message bot';
+        msg.innerHTML = `<em>✅ Added to cart!</em>`;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      })
+      .catch(err => {
+        const msg = document.createElement('div');
+        msg.className = 'message bot';
+        msg.innerHTML = `<em>⚠️ Error adding to cart. Please try again.</em>`;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
     }
   </script>
 </body>
