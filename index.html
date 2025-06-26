@@ -4,49 +4,101 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Virtual Budtender</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Sans+Pro:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
   <style>
-    body { margin: 0; font-family: 'Source Sans Pro', sans-serif; line-height: 1.5; }
-    #chat-launcher { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 999; background-color: #111827; color: white; border: none; border-radius: 2rem; padding: 0.75rem 1.25rem; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
-    #chat-container { position: fixed; top: 5rem; left: 50%; transform: translateX(-50%); width: 100%; max-width: 800px; height: calc(100vh - 7rem); max-height: 80vh; border-radius: 1rem; overflow: hidden; background: white; display: none; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.25); }
-    #chat-header { background-color: #111827; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-    #chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background-color: #f9fafb; }
-    .message { margin-bottom: 1.5rem; max-width: 100%; line-height: 1.6; }
-    .user { display: flex; justify-content: flex-end; }
-    .user .message-content { background-color: #f1c709; color: #000; padding: 0.75rem 1rem; border-radius: 1rem; max-width: 70%; word-wrap: break-word; font-weight: 400; }
-    .bot { text-align: left; color: #374151; font-weight: 400; }
-    #chat-form { display: flex; padding: 0.75rem; border-top: 1px solid #e5e7eb; background: white; }
-    #chat-input { flex: 1; padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 2rem; font-size: 1rem; }
-    #chat-submit { margin-left: 0.5rem; background-color: rgb(40, 186, 54); color: white; border: none; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; }
-    .typing-dots span { opacity: 0.3; animation: typing 1.4s infinite; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: #f9fafb; }
+    #chat-launcher {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 999; background-color: #111827; color: white; border: none;
+      border-radius: 2rem; padding: 0.75rem 1.5rem;
+      font-size: 1rem; cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+    #chat-container {
+      position: fixed; top: 5rem; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 800px; height: calc(100vh - 7rem);
+      max-height: 80vh; border-radius: 1rem;
+      display: none; flex-direction: column;
+      background: white; box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    #chat-header {
+      background-color: #111827; color: white;
+      padding: 1rem; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    #chat-messages {
+      flex: 1; padding: 1rem;
+      overflow-y: auto; background-color: #f9fafb;
+    }
+    .message {
+      margin-bottom: 1rem; max-width: 100%; line-height: 1.6;
+    }
+    .user {
+      display: flex; justify-content: flex-end;
+    }
+    .user .message-content {
+      background-color: #f1c709; color: black;
+      padding: 0.6rem 1rem; border-radius: 1rem;
+      max-width: 70%; word-wrap: break-word;
+    }
+    .bot { text-align: left; color: #374151; }
+    #chat-form {
+      display: flex; padding: 0.75rem;
+      border-top: 1px solid #e5e7eb; background: white;
+    }
+    #chat-input {
+      flex: 1; padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db; border-radius: 2rem;
+      font-size: 1rem;
+    }
+    #chat-submit {
+      margin-left: 0.5rem;
+      background-color: rgb(40, 186, 54);
+      color: white; border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem; cursor: pointer;
+    }
+    .typing-dots span {
+      opacity: 0.3; animation: typing 1.4s infinite;
+    }
     .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
     .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
   </style>
 </head>
+
 <body>
+
   <button id="chat-launcher">💬 Virtual Budtender - Ask anything</button>
+
   <div id="chat-container">
     <div id="chat-header">
-      Conversation
+      Virtual Budtender
       <div>
-        <button id="reset-chat" title="Start new session" style="background:none; border:none; color:white; font-size:1rem; margin-right: 1rem; cursor:pointer;">🔄 Reset</button>
-        <button onclick="document.getElementById('chat-container').style.display='none'" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+        <button id="reset-chat" title="Reset chat" style="background:none; border:none; color:white; cursor:pointer;">🔄 Reset</button>
+        <button onclick="chatContainer.style.display='none'" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
       </div>
     </div>
+
     <div id="chat-messages"></div>
+
     <form id="chat-form">
       <input type="text" id="chat-input" placeholder="Ask a question..." required />
       <button type="submit" id="chat-submit">Send</button>
     </form>
   </div>
+
   <script>
     const chatLauncher = document.getElementById('chat-launcher');
     const chatContainer = document.getElementById('chat-container');
     const chatMessages = document.getElementById('chat-messages');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
+    const chatSubmit = document.getElementById('chat-submit');
 
     let sessionId = localStorage.getItem('chat_session_id') || crypto.randomUUID();
     localStorage.setItem('chat_session_id', sessionId);
@@ -57,18 +109,20 @@
       localStorage.removeItem('chat_session_id');
       sessionId = crypto.randomUUID();
       localStorage.setItem('chat_session_id', sessionId);
-      chatMessages.innerHTML = '<div class="message bot"><em>🔄 Chat has been reset. Start a new conversation!</em></div>';
+      chatMessages.innerHTML = '<div class="message bot"><em>🔄 Chat reset. Start a new conversation!</em></div>';
     });
 
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const question = chatInput.value;
-      appendTextMessage(question, 'user');
+      const question = chatInput.value.trim();
+      if (!question) return;
+
+      appendMessage(question, 'user');
       chatInput.value = '';
       await handleStreamedResponse(question);
     });
 
-    function appendTextMessage(text, sender) {
+    function appendMessage(text, sender) {
       const msg = document.createElement('div');
       msg.className = `message ${sender}`;
       const content = document.createElement('div');
@@ -82,7 +136,7 @@
     function showTypingIndicator() {
       const typing = document.createElement('div');
       typing.className = 'message bot typing-indicator';
-      typing.innerHTML = '<em>🌿 Budtender is typing<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></em>';
+      typing.innerHTML = '<em>🌿 Budtender is typing <span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></em>';
       chatMessages.appendChild(typing);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       return typing;
@@ -100,6 +154,9 @@
       msg.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       const typingIndicator = showTypingIndicator();
+
+      chatInput.disabled = true;
+      chatSubmit.disabled = true;
 
       try {
         const response = await fetch("https://budtender.cannafax.com/chat/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat-stream", {
@@ -129,7 +186,12 @@
         removeTypingIndicator(typingIndicator);
         msg.innerHTML = `<em>⚠️ Connection issue. Please try again.</em>`;
       }
+
+      chatInput.disabled = false;
+      chatSubmit.disabled = false;
+      chatInput.focus();
     }
   </script>
+
 </body>
 </html>
