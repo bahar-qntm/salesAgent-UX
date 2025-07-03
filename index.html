@@ -87,6 +87,11 @@
         justify-content: center;
       }
 
+      /* Hide launcher when chat is open on mobile */
+      #chat-container[style*="flex"] ~ #chat-launcher {
+        display: none !important;
+      }
+
       #chat-container {
         bottom: 0;
         right: 0;
@@ -101,6 +106,7 @@
         border-radius: 0;
         display: flex;
         flex-direction: column;
+        z-index: 10000; /* Higher than launcher */
       }
 
       #chat-messages {
@@ -488,6 +494,12 @@
     function openChat() {
       chatContainer.style.display = 'flex';
       chatContainer.setAttribute('aria-hidden', 'false');
+      
+      // Hide launcher button on mobile/small screens when chat is open
+      if (window.innerWidth <= 900 || window.innerHeight <= 700) {
+        chatLauncher.style.display = 'none';
+      }
+      
       chatInput.focus();
       
       // Add welcome message if no messages exist
@@ -499,6 +511,9 @@
     function closeChat() {
       chatContainer.style.display = 'none';
       chatContainer.setAttribute('aria-hidden', 'true');
+      
+      // Show launcher button again when chat is closed
+      chatLauncher.style.display = 'flex';
     }
 
     function resetChat() {
