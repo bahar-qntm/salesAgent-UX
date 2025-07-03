@@ -3,195 +3,601 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Virtual Budtender</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <title>Virtual Budtender Chat Widget</title>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"></noscript>
   <style>
-    body { margin: 0; font-family: 'Inter', sans-serif; background: #f9fafb; }
+    /* CSS Variables for Brand Colors */
+    :root {
+      --primary-dark: #111827;
+      --accent-green: #28ba36;
+      --accent-gold: #f1c709;
+      --background: #f9fafb;
+      --text-primary: #374151;
+      --border: #e5e7eb;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      line-height: 1.5;
+    }
+
+    /* Chat Launcher Button */
     #chat-launcher {
-      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-      z-index: 999; background-color: #111827; color: white; border: none;
-      border-radius: 2rem; padding: 0.75rem 1.5rem;
-      font-size: 1rem; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    }
-    #chat-container {
-      position: fixed; top: 5rem; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 800px; height: calc(100vh - 7rem);
-      max-height: 80vh; border-radius: 1rem;
-      display: none; flex-direction: column;
-      background: white; box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    #chat-header {
-      background-color: #111827; color: white;
-      padding: 1rem; display: flex;
-      justify-content: space-between; align-items: center;
-    }
-    #chat-messages {
-      flex: 1; padding: 1rem;
-      overflow-y: auto; background-color: #f9fafb;
-    }
-    .message {
-      margin-bottom: 1rem; max-width: 100%; line-height: 1.6;
-    }
-    .user {
-      display: flex; justify-content: flex-end;
-    }
-    .user .message-content {
-      background-color: #f1c709; color: black;
-      padding: 0.6rem 1rem; border-radius: 1rem;
-      max-width: 70%; word-wrap: break-word;
-    }
-    .bot { text-align: left; color: #374151; }
-    #chat-form {
-      display: flex; padding: 0.75rem;
-      border-top: 1px solid #e5e7eb; background: white;
-    }
-    #chat-input {
-      flex: 1; padding: 0.5rem 1rem;
-      border: 1px solid #d1d5db; border-radius: 2rem;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      background-color: var(--primary-dark);
+      color: var(--white);
+      border: none;
+      border-radius: 2rem;
+      padding: 0.75rem 1.5rem;
       font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+      min-height: 44px; /* Mobile touch target */
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    #chat-submit {
-      margin-left: 0.5rem;
-      background-color: rgb(40, 186, 54);
-      color: white; border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 2rem; cursor: pointer;
+
+    #chat-launcher:hover {
+      background-color: #1f2937;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
+
+    /* Chat Container */
+    #chat-container {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      width: 400px;
+      max-width: calc(100vw - 2rem);
+      height: 600px;
+      max-height: calc(100vh - 8rem);
+      border-radius: 1rem;
+      display: none;
+      flex-direction: column;
+      background: var(--white);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      z-index: 9998;
+      transition: all 0.3s ease;
+    }
+
+    /* Mobile Responsive Design */
+    @media (max-width: 800px) {
+      #chat-launcher {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        width: auto;
+        border-radius: 1rem;
+        justify-content: center;
+      }
+
+      #chat-container {
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+    }
+
+    @media (max-width: 400px) {
+      #chat-launcher {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+      }
+    }
+
+    /* Chat Header */
+    #chat-header {
+      background-color: var(--primary-dark);
+      color: var(--white);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    #chat-header-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    #chat-header button {
+      background: none;
+      border: none;
+      color: var(--white);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s ease;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chat-header button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #reset-chat {
+      font-size: 0.9rem;
+    }
+
+    #close-chat {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Chat Messages */
+    #chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background-color: var(--background);
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      max-width: 100%;
+      line-height: 1.6;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message.user .message-content {
+      background-color: var(--accent-gold);
+      color: #000;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem 1rem 0.25rem 1rem;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-weight: 500;
+    }
+
+    .message.bot {
+      text-align: left;
+      color: var(--text-primary);
+    }
+
+    .message.bot .message-content {
+      background-color: var(--white);
+      padding: 0.75rem 1rem;
+      border-radius: 1rem 1rem 1rem 0.25rem;
+      max-width: 80%;
+      word-wrap: break-word;
+      border: 1px solid var(--border);
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      font-style: italic;
+      color: #6b7280;
+    }
+
+    .typing-dots {
+      display: inline-block;
+    }
+
     .typing-dots span {
-      opacity: 0.3; animation: typing 1.4s infinite;
+      opacity: 0.3;
+      animation: typing 1.4s infinite;
     }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
     @keyframes typing {
       0%, 60%, 100% { opacity: 0.3; }
       30% { opacity: 1; }
+    }
+
+    /* Chat Form */
+    #chat-form {
+      display: flex;
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      gap: 0.5rem;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 1.5rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease;
+      min-height: 44px;
+    }
+
+    #chat-input:focus {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(40, 186, 54, 0.1);
+    }
+
+    #chat-input:disabled {
+      background-color: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    #chat-submit {
+      background-color: var(--accent-green);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    #chat-submit:hover:not(:disabled) {
+      background-color: #22a832;
+      transform: translateY(-1px);
+    }
+
+    #chat-submit:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Error States */
+    .error-message {
+      color: #dc2626;
+      font-style: italic;
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Focus indicators for keyboard navigation */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent-green);
+      outline-offset: 2px;
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      :root {
+        --border: #000;
+        --text-primary: #000;
+      }
     }
   </style>
 </head>
 
 <body>
+  <button id="chat-launcher" aria-label="Open Virtual Budtender Chat">
+    💬 Virtual Budtender - Ask anything
+  </button>
 
-  <button id="chat-launcher">💬 Virtual Budtender - Ask anything</button>
-
-  <div id="chat-container">
+  <div id="chat-container" role="dialog" aria-labelledby="chat-header-title" aria-hidden="true">
     <div id="chat-header">
-      Virtual Budtender
-      <div>
-        <button id="reset-chat" title="Reset chat" style="background:none; border:none; color:white; cursor:pointer;">🔄 Reset</button>
-        <button onclick="chatContainer.style.display='none'" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+      <span id="chat-header-title">Virtual Budtender</span>
+      <div id="chat-header-controls">
+        <button id="reset-chat" title="Reset chat" aria-label="Reset chat conversation">
+          🔄 Reset
+        </button>
+        <button id="close-chat" title="Close chat" aria-label="Close chat window">
+          ×
+        </button>
       </div>
     </div>
 
-    <div id="chat-messages"></div>
+    <div id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
 
-    <form id="chat-form">
-      <input type="text" id="chat-input" placeholder="Ask a question..." required />
-      <button type="submit" id="chat-submit">Send</button>
+    <form id="chat-form" role="form">
+      <input 
+        type="text" 
+        id="chat-input" 
+        placeholder="Ask about cannabis products, effects, or recommendations..." 
+        required 
+        aria-label="Type your message"
+        autocomplete="off"
+      />
+      <button type="submit" id="chat-submit" aria-label="Send message">
+        Send
+      </button>
     </form>
   </div>
 
   <script>
+    // Configuration
+    const CONFIG = {
+      API_ENDPOINT: 'https://budtender.cannafax.com/chat/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat-stream',
+      SESSION_STORAGE_KEY: 'virtual_budtender_session_id',
+      MAX_RETRIES: 3,
+      RETRY_DELAY: 1000
+    };
+
+    // DOM Elements
     const chatLauncher = document.getElementById('chat-launcher');
     const chatContainer = document.getElementById('chat-container');
     const chatMessages = document.getElementById('chat-messages');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatSubmit = document.getElementById('chat-submit');
+    const resetButton = document.getElementById('reset-chat');
+    const closeButton = document.getElementById('close-chat');
 
-    let sessionId = localStorage.getItem('chat_session_id') || crypto.randomUUID();
-    localStorage.setItem('chat_session_id', sessionId);
+    // Session Management
+    let sessionId = localStorage.getItem(CONFIG.SESSION_STORAGE_KEY) || generateSessionId();
+    localStorage.setItem(CONFIG.SESSION_STORAGE_KEY, sessionId);
 
-    chatLauncher.addEventListener('click', () => chatContainer.style.display = 'flex');
+    function generateSessionId() {
+      return crypto.randomUUID ? crypto.randomUUID() : 
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0;
+          const v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+    }
 
-    document.getElementById('reset-chat').addEventListener('click', () => {
-      localStorage.removeItem('chat_session_id');
-      sessionId = crypto.randomUUID();
-      localStorage.setItem('chat_session_id', sessionId);
-      chatMessages.innerHTML = '<div class="message bot"><em>🔄 Chat reset. Start a new conversation!</em></div>';
+    // Event Listeners
+    chatLauncher.addEventListener('click', openChat);
+    closeButton.addEventListener('click', closeChat);
+    resetButton.addEventListener('click', resetChat);
+    chatForm.addEventListener('submit', handleSubmit);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && chatContainer.style.display === 'flex') {
+        closeChat();
+      }
     });
 
-    chatForm.addEventListener('submit', async (e) => {
+    // Chat Functions
+    function openChat() {
+      chatContainer.style.display = 'flex';
+      chatContainer.setAttribute('aria-hidden', 'false');
+      chatInput.focus();
+      
+      // Add welcome message if no messages exist
+      if (chatMessages.children.length === 0) {
+        appendMessage('👋 Welcome! I\'m your Virtual Budtender. How can I help you with cannabis products, effects, or recommendations today?', 'bot');
+      }
+    }
+
+    function closeChat() {
+      chatContainer.style.display = 'none';
+      chatContainer.setAttribute('aria-hidden', 'true');
+    }
+
+    function resetChat() {
+      // Generate new session ID
+      sessionId = generateSessionId();
+      localStorage.setItem(CONFIG.SESSION_STORAGE_KEY, sessionId);
+      
+      // Clear messages
+      chatMessages.innerHTML = '';
+      
+      // Add reset confirmation
+      appendMessage('🔄 Chat reset successfully! Start a new conversation.', 'bot');
+      
+      // Focus input
+      chatInput.focus();
+    }
+
+    async function handleSubmit(e) {
       e.preventDefault();
       const question = chatInput.value.trim();
+      
       if (!question) return;
 
+      // Add user message
       appendMessage(question, 'user');
       chatInput.value = '';
+      
+      // Handle streamed response
       await handleStreamedResponse(question);
-    });
+    }
 
     function appendMessage(text, sender) {
-      const msg = document.createElement('div');
-      msg.className = `message ${sender}`;
-      const content = document.createElement('div');
-      content.className = 'message-content';
-      content.textContent = text;
-      msg.appendChild(content);
-      chatMessages.appendChild(msg);
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      
+      if (sender === 'bot') {
+        contentDiv.innerHTML = text; // Allow HTML for bot messages
+      } else {
+        contentDiv.textContent = text; // Sanitize user messages
+      }
+      
+      messageDiv.appendChild(contentDiv);
+      chatMessages.appendChild(messageDiv);
+      
+      // Scroll to bottom
       chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      return messageDiv;
     }
 
     function showTypingIndicator() {
-      const typing = document.createElement('div');
-      typing.className = 'message bot typing-indicator';
-      typing.innerHTML = '<em>🌿 Budtender is typing <span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></em>';
-      chatMessages.appendChild(typing);
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message bot typing-indicator';
+      typingDiv.innerHTML = '<em>🌿 Budtender is thinking <span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></em>';
+      chatMessages.appendChild(typingDiv);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-      return typing;
+      return typingDiv;
     }
 
-    function removeTypingIndicator(el) {
-      if (el) el.remove();
+    function removeTypingIndicator(indicator) {
+      if (indicator && indicator.parentNode) {
+        indicator.parentNode.removeChild(indicator);
+      }
     }
 
     async function handleStreamedResponse(question) {
-      const msg = document.createElement('div');
-      msg.className = 'message bot';
-      msg.innerHTML = '';
-      chatMessages.appendChild(msg);
-      msg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const botMessageDiv = document.createElement('div');
+      botMessageDiv.className = 'message bot';
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.innerHTML = '';
+      
+      botMessageDiv.appendChild(contentDiv);
+      chatMessages.appendChild(botMessageDiv);
 
       const typingIndicator = showTypingIndicator();
 
-      chatInput.disabled = true;
-      chatSubmit.disabled = true;
+      // Disable input during response
+      setInputState(false);
 
-      try {
-        const response = await fetch("https://budtender.cannafax.com/chat/tenant/5388610a-535a-4d3f-92e5-9ae6527f9283/chat-stream", {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question, session_id: sessionId })
-        });
+      let retryCount = 0;
+      
+      while (retryCount < CONFIG.MAX_RETRIES) {
+        try {
+          const response = await fetch(CONFIG.API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              question: question,
+              session_id: sessionId
+            })
+          });
 
-        if (!response.body) throw new Error("No stream");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
 
-        removeTypingIndicator(typingIndicator);
+          if (!response.body) {
+            throw new Error('No response stream available');
+          }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+          removeTypingIndicator(typingIndicator);
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
 
-          const chunk = decoder.decode(value);
-          msg.innerHTML += chunk;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+          while (true) {
+            const { value, done } = await reader.read();
+            
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            
+            // Update content and scroll
+            contentDiv.innerHTML = buffer;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+
+          // Success - break retry loop
+          break;
+
+        } catch (error) {
+          console.error('Chat error:', error);
+          retryCount++;
+          
+          removeTypingIndicator(typingIndicator);
+          
+          if (retryCount >= CONFIG.MAX_RETRIES) {
+            contentDiv.innerHTML = `<span class="error-message">⚠️ Unable to connect to the Virtual Budtender. Please check your connection and try again.</span>`;
+          } else {
+            contentDiv.innerHTML = `<em>Connection issue, retrying... (${retryCount}/${CONFIG.MAX_RETRIES})</em>`;
+            await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY));
+          }
         }
-
-      } catch (err) {
-        console.error(err);
-        removeTypingIndicator(typingIndicator);
-        msg.innerHTML = `<em>⚠️ Connection issue. Please try again.</em>`;
       }
 
-      chatInput.disabled = false;
-      chatSubmit.disabled = false;
+      // Re-enable input
+      setInputState(true);
       chatInput.focus();
     }
-  </script>
 
+    function setInputState(enabled) {
+      chatInput.disabled = !enabled;
+      chatSubmit.disabled = !enabled;
+      
+      if (enabled) {
+        chatInput.removeAttribute('aria-busy');
+        chatSubmit.removeAttribute('aria-busy');
+      } else {
+        chatInput.setAttribute('aria-busy', 'true');
+        chatSubmit.setAttribute('aria-busy', 'true');
+      }
+    }
+
+    // Performance optimization: Debounce scroll events
+    let scrollTimeout;
+    chatMessages.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        // Handle scroll end if needed
+      }, 100);
+    });
+
+    // Initialize
+    console.log('Virtual Budtender Chat Widget initialized');
+    
+    // Analytics hooks (if needed)
+    window.VirtualBudtender = {
+      on: function(event, callback) {
+        // Event system for analytics integration
+        document.addEventListener(`vb_${event}`, callback);
+      },
+      emit: function(event, data) {
+        document.dispatchEvent(new CustomEvent(`vb_${event}`, { detail: data }));
+      }
+    };
+  </script>
 </body>
 </html>
