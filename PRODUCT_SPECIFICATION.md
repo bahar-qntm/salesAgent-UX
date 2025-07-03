@@ -36,6 +36,7 @@ The Virtual Budtender serves as an intelligent customer service and product reco
 | **Typing Indicators** | Visual feedback during response generation | CSS animations with dot progression |
 | **Chat Reset** | Ability to start fresh conversations | Session ID regeneration and UI reset |
 | **Error Handling** | Graceful degradation for connection issues | Try-catch blocks with user-friendly error messages |
+| **Prominent Positioning** | Top-center placement to encourage user engagement | Fixed positioning with transform centering |
 
 ### 🎨 User Interface Features
 
@@ -54,6 +55,8 @@ The Virtual Budtender serves as an intelligent customer service and product reco
 - **Cross-browser Compatibility**: Modern JavaScript with fallback support
 - **Performance Optimized**: Minimal DOM manipulation and efficient scrolling
 - **Security Conscious**: HTTPS-only API communication
+- **Mobile-Optimized**: Enhanced mobile keyboard handling and text visibility fixes
+- **Dynamic Positioning**: Intelligent launcher button management for optimal UX
 
 ## Technical Specifications
 
@@ -103,7 +106,7 @@ The Virtual Budtender serves as an intelligent customer service and product reco
 
 ### Interaction Flow
 
-1. **Widget Discovery**: Fixed-position launcher button prominently displayed
+1. **Widget Discovery**: Fixed-position launcher button prominently displayed at top-center of screen
 2. **Chat Activation**: Single click to expand full chat interface
 3. **Message Input**: Natural text input with placeholder guidance
 4. **Response Streaming**: Real-time response generation with typing indicators
@@ -302,6 +305,28 @@ Indica and sativa are two main types of cannabis plants...
 - **Network Awareness**: Adaptive quality based on connection speed
 - **Battery Optimization**: Reduced CPU usage during idle states
 - **Viewport Handling**: Proper handling of mobile browser viewport changes
+
+#### Recent Mobile Fixes (January 2025)
+- **Text Visibility Issue**: Fixed white text on white background problem with explicit color styling
+- **Launcher Button Overlap**: Resolved issue where launcher button appeared over input field on mobile
+- **Dynamic Viewport Height**: Implemented `100dvh` for better mobile keyboard handling
+- **Enhanced Input Focus**: Added automatic scroll-into-view when mobile keyboard appears
+- **Cross-Browser Compatibility**: Added `-webkit-appearance: none` for consistent mobile styling
+- **Safe Area Support**: Added padding for devices with notches using `env(safe-area-inset-bottom)`
+- **Mobile Auto-Open Fix**: Resolved critical issue where chat window auto-opened on mobile instead of showing launcher button first
+- **Launcher Button Consistency**: Fixed launcher button hiding behavior to work consistently across desktop and mobile devices
+
+#### UI Positioning Strategy (January 2025)
+- **Top-Center Placement**: Moved launcher button from bottom-right to top-center of screen
+- **Centered Chat Window**: Chat container positioned in center of screen using `transform: translate(-50%, -50%)`
+- **Enhanced Desktop Prominence**: Increased desktop chat window size to 600px width × 700px height for maximum impact
+- **Enhanced Shadow Effects**: Deeper shadow (0 20px 40px) creates more prominent visual presence
+- **Mobile Responsive Sizing**: Mobile chat window uses `calc(100vw - 2rem)` width with 1rem margins on each side
+- **Strategic Positioning**: Designed to maximize user interaction and chat adoption
+- **Responsive Centering**: Uses CSS transforms for perfect centering across all screen sizes
+- **Hover Animation Updates**: Modified hover effects to maintain centering during animations
+- **Cross-Device Optimization**: Desktop prominence with mobile-friendly margins
+- **Modal-Style Interface**: Chat window appears as a centered modal overlay for better focus
 
 ## Deployment & Maintenance
 
