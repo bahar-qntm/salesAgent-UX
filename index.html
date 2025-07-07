@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Virtual Budtender Chat Widget</title>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"></noscript>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></noscript>
   <style>
     /* CSS Variables for Brand Colors */
     :root {
@@ -27,13 +27,14 @@
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
       line-height: 1.5;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     }
 
     /* Chat Launcher Button */
@@ -167,36 +168,27 @@
 
     .header-titles {
       display: flex;
-      flex-direction: column;
+      align-items: center;
     }
 
     #chat-header-title {
-      margin-bottom: 2px;
-      font-size: 1.1rem;
-    }
-
-    #chat-header-subtitle {
-      opacity: 0.9;
-      font-size: 0.9rem;
-      font-weight: 400;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
     }
 
     /* Mobile header adjustments */
     @media (max-width: 600px) {
       .chat-header-left {
-        gap: 8px;
+        gap: 10px;
       }
       
       .cannafax-logo {
-        height: 24px;
+        height: 28px;
       }
       
       #chat-header-title {
-        font-size: 1rem;
-      }
-      
-      #chat-header-subtitle {
-        font-size: 0.8rem;
+        font-size: 1.1rem;
       }
     }
 
@@ -444,8 +436,7 @@
              alt="Cannafax Logo" 
              class="cannafax-logo">
         <div class="header-titles">
-          <div id="chat-header-title">Cannabis Sales Agent</div>
-          <div id="chat-header-subtitle">Virtual Budtender</div>
+          <div id="chat-header-title">Virtual Budtender</div>
         </div>
       </div>
       <div id="chat-header-controls">
