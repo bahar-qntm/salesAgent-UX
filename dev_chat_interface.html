@@ -218,22 +218,9 @@
         </div>
 
         <div class="debug-controls">
-            <label>Tenant:</label>
-            <select id="tenantSelect">
-                <option value="5388610a-535a-4d3f-92e5-9ae6527f9283">Cool Shop</option>
-                <option value="27e2919c-51bf-4b79-8eeb-81d69ec69a5f">Corporate Shop</option>
-                <option value="e169f849-9623-474d-80a8-e74182b3e0d1">LuxPot Shop</option>
-            </select>
-
-            <label>API Base:</label>
-            <input type="text" id="apiBase" value="http://localhost:8000" placeholder="http://localhost:8000">
-
-            <label>Session ID:</label>
-            <input type="text" id="sessionId" placeholder="auto-generated">
-
             <button class="quick-test-btn" onclick="clearChat()">Clear Chat</button>
         </div>
-
+        
         <div class="debug-controls">
             <div class="quick-tests">
                 <strong>Quick Tests:</strong>
@@ -276,14 +263,8 @@
         }
 
         function getCurrentSessionId() {
-            const sessionInput = document.getElementById('sessionId');
-            if (sessionInput.value.trim()) {
-                return sessionInput.value.trim();
-            }
-            
             if (!currentSessionId) {
                 currentSessionId = generateSessionId();
-                sessionInput.value = currentSessionId;
             }
             return currentSessionId;
         }
@@ -336,8 +317,8 @@
             
             if (!messageText) return;
             
-            const tenantId = document.getElementById('tenantSelect').value;
-            const apiBase = document.getElementById('apiBase').value;
+            const tenantId = "5388610a-535a-4d3f-92e5-9ae6527f9283";
+            const apiBase = "https://cannafax-salesagent-dev-a3arezgmehajewa4.westus3-01.azurewebsites.net";
             const sessionId = getCurrentSessionId();
             
             // Add user message to chat
@@ -349,9 +330,9 @@
             setButtonsDisabled(true);
             
             try {
-                console.log('🚀 Sending streaming request to:', `${apiBase}/chat/tenant/${tenantId}/chat-stream`);
+                console.log('🚀 Sending function calling request to:', `${apiBase}/chat/tenant/${tenantId}/chat`);
                 
-                const response = await fetch(`${apiBase}/chat/tenant/${tenantId}/chat-stream`, {
+                const response = await fetch(`${apiBase}/chat/tenant/${tenantId}/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -368,49 +349,25 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                console.log('✅ Streaming response started');
-                hideTyping(); // Hide typing indicator as we start streaming
+                console.log('✅ Function calling response received - guaranteed 1 API call');
                 
-                // Create a placeholder message div for streaming content
-                const messagesContainer = document.getElementById('chatMessages');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message assistant';
+                // Parse JSON response
+                const data = await response.json();
+                console.log('📊 Response data:', data);
                 
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                contentDiv.innerHTML = ''; // Start empty
+                // CRITICAL FIX: Update session ID from server response
+                if (data.session_id) {
+                    currentSessionId = data.session_id;
+                    console.log('✅ Session ID updated:', data.session_id);
+                }
                 
-                messageDiv.appendChild(contentDiv);
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                hideTyping();
                 
-                // Handle streaming response
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                
-                try {
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        
-                        if (done) {
-                            console.log('✅ Streaming complete');
-                            break;
-                        }
-                        
-                        // Decode the chunk and add to buffer
-                        const chunk = decoder.decode(value, { stream: true });
-                        buffer += chunk;
-                        
-                        // Update the message content with the accumulated buffer
-                        contentDiv.innerHTML = buffer;
-                        
-                        // Auto-scroll to bottom
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    }
-                } catch (streamError) {
-                    console.error('❌ Streaming error:', streamError);
-                    contentDiv.innerHTML += '<br><em style="color: #dc3545;">Streaming interrupted</em>';
+                // Add the assistant's response to the chat
+                if (data.answer) {
+                    addMessage(data.answer, false);
+                } else {
+                    addMessage('I apologize, but I couldn\'t generate a response right now.', false);
                 }
                 
             } catch (error) {
@@ -445,7 +402,6 @@
             
             // Reset session
             currentSessionId = null;
-            document.getElementById('sessionId').value = '';
             
             console.log('🧹 Chat cleared, new session will be created');
         }
